@@ -13,13 +13,6 @@ if ! grep -q 'test-deps/testing/lib' '.deps'; then
     echo " --loadpath test-deps/testing/lib" >> .deps
 fi
 
-redis_name=test_redis_server
-
-echo "Starting Redis server: $redis_name"
-docker run --name $redis_name -d -p 6379:6379 redis
-
-# actual test
-
 declare -a implementations=(sagittarius@0.9.2 chez@v9.5)
 
 check_output() {
@@ -53,9 +46,6 @@ cd ..
 
 echo Library test status ${EXIT_STATUS}
 
-echo "Stopping Redis server: $redis_name"
-docker stop $redis_name
-docker rm $redis_name
 
 exit ${EXIT_STATUS}
 
