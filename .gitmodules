@@ -1,0 +1,6 @@
+[submodule "deps/usocket"]
+	path = deps/usocket
+	url = https://github.com/ktakashi/r6rs-usocket.git
+[submodule "test-deps/testing"]
+	path = test-deps/testing
+	url = https://github.com/ktakashi/chez-testing.git
