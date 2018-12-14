@@ -77,43 +77,20 @@
 	(redis-error command value connection)
 	value)))
 
-;; R6RS suggest string-ref to be constant time
-;; so make use of it
-(define (string-contains? s pred)
-  (let loop ((i 0))
-    (cond ((= i (string-length s)) #f)
-	  ((pred (string-ref s i)))
-	  (else (loop (+ i 1))))))
 (define terminator #vu8(#x0d #x0a))
 (define (write-redis-data out data)
-  (define (terminator? c) (or (eqv? c #\newline) (eqv? c #\return)))
-  (cond ((string? data)
-	 (if (string-contains? data terminator?)
-	     (write-redis-bulk out (string->utf8 data))
-	     (write-redis-string out data)))
+  (cond ((string? data)     (write-redis-data out (string->utf8 data)))
 	((bytevector? data) (write-redis-bulk out data))
-	((number? data)
-	 (if (integer? data)
-	     (write-redis-integer out data)
-	     (write-redis-string out (number->string data))))
-	((vector? data) (write-redis-array out data))
+	((number? data)     (write-redis-data out (number->string data)))
+	;; should we?
+	((vector? data)     (write-redis-array out data))
 	(else (assertion-violation 'redis-command "Invalid data" data))))
-
-(define (write-redis-string out s)
-  (put-u8 out (char->integer #\+))
-  (put-bytevector out (string->utf8 s))
-  (put-bytevector out terminator))
 
 (define (write-redis-bulk out bv)
   (put-u8 out (char->integer #\$))
   (put-bytevector out (string->utf8 (number->string (bytevector-length bv))))
   (put-bytevector out terminator)
   (put-bytevector out bv)
-  (put-bytevector out terminator))
-
-(define (write-redis-integer out i)
-  (put-u8 out (char->integer #\:))
-  (put-bytevector out (string->utf8 (number->string i)))
   (put-bytevector out terminator))
   
 (define (write-redis-array out vec)

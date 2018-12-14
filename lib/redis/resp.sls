@@ -143,20 +143,20 @@
     (values 'bulk bulk))
   (let-values (((t n) (read-integer in)))
     (if (negative? n)
-	(check-terminate in n #f)
+	(values 'bulk #f)
 	(check-terminate in n (get-bytevector-n in n)))))
 
 (define (read-array in)
-  (define (check-terminate in n array)
-    (unless (terminate? in)
-      (error 'redis-recv-response "Invalid array" n))
-    (values 'array array))
+  (define (return array) (values 'array array))
   (let-values (((t n) (read-integer in)))
-    (cond ((zero? n) (check-terminate in n '#()))
-	  ((negative? n) (check-terminate in n #f))
+    (cond ((zero? n) (return '#()))
+	  ((negative? n) (return #f))
 	  (else 
 	   (do ((i 0 (+ i 1)) (v (make-vector n)))
-	       ((= i n) (check-terminate in n v))
-	     (vector-set! v i (read-response in)))))))
+	       ((= i n) (return v))
+	     ;; TODO check error? or we assume there's no error
+	     ;; inside the array?
+	     (let-values (((t b) (read-response in)))
+	       (vector-set! v i b)))))))
 
 )
