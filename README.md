@@ -3,6 +3,14 @@
 
 `(redis)` provides R6RS portable Redis client.
 
+
+
+Limitation
+==========
+
+This library is usign [`(usocket)`](https://github.com/ktakashi/r6rs-usocket),
+means the implememtation must be supported by the `(usocket)` library.
+
 References
 ==========
 
