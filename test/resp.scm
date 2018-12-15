@@ -25,7 +25,7 @@
   (test-assert "send (2)"
    (redis-connection? 
     (redis-send-request conn
-     (string->utf8 "*2\r\n$4\r\nPING\r\n$5\r\nhello\r\n\r\n"))))
+     (string->utf8 "*2\r\n$4\r\nPING\r\n$5\r\nhello\r\n"))))
   (let-values (((type body) (redis-recv-response conn)))
     (test-equal "recv type (2)" 'bulk type)
     (test-equal "recv body (3)" (string->utf8 "hello") body))
