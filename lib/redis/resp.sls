@@ -33,6 +33,11 @@
     (export redis-send-request
 	    redis-recv-response
 
+	    (rename (redis-bidirectional <redis-bidirectional>))
+	    redis-bidirectional? 
+	    redis-bidirectional-input-port
+	    redis-bidirectional-output-port
+
 	    make-redis-connection
 	    redis-connection?
 	    redis-connection-open!
@@ -40,11 +45,17 @@
     (import (rnrs)
 	    (usocket))
 
+(define-record-type redis-bidirectional
+  (fields (mutable input-port)
+	  (mutable output-port)
+	  sent))
+    
 (define-record-type redis-connection
+  (parent redis-bidirectional)
   (fields host
 	  port
 	  (mutable socket))
-  (protocol (lambda (p)
+  (protocol (lambda (n)
 	      (lambda (host . maybe-port)
 		(define port (if (null? maybe-port)
 				 "6379"
@@ -52,14 +63,18 @@
 		(unless (string? port)
 		  (assertion-violation 'make-redis-connection
 				       "Port must be a string" port))
-		(p host port #f)))))
+		((n #f #f (lambda (me command) #f)) host port #f)))))
 
 (define (redis-connection-open! connection)
   (when (redis-connection-socket connection)
     (assertion-violation 'redis-connection-open! "Already connected"))
-  (let ((sock (make-tcp-client-usocket (redis-connection-host connection)
-				       (redis-connection-port connection))))
+  (let* ((sock (make-tcp-client-usocket (redis-connection-host connection)
+					(redis-connection-port connection)))
+	 (in (client-usocket-input-port sock))
+	 (out (client-usocket-output-port sock)))
     (redis-connection-socket-set! connection sock)
+    (redis-bidirectional-input-port-set! connection in)
+    (redis-bidirectional-output-port-set! connection out)
     connection))
 (define (redis-connection-close! connection)
   (let ((sock (redis-connection-socket connection)))
@@ -67,27 +82,27 @@
     (usocket-shutdown! sock *usocket:shutdown-read&write*)
     (usocket-close! sock)
     (redis-connection-socket-set! connection #f)
+    (redis-bidirectional-input-port-set! connection #f)
+    (redis-bidirectional-output-port-set! connection #f)
     connection))
-
-;; internal for now?
-(define redis-connection-open? redis-connection-socket)
 
 ;; [Low API]: the request must be a bytevector
 (define (redis-send-request connection bv)
-  (unless (redis-connection-open? connection)
+  (unless (redis-bidirectional-output-port connection)
     (assertion-violation 'redis-send-request "Connection is closed" connection))
-  (let ((out (client-usocket-output-port (redis-connection-socket connection))))
+  (let ((out (redis-bidirectional-output-port connection)))
     (put-bytevector out bv)
     (flush-output-port out)
+    ((redis-bidirectional-sent connection) connection bv)
     connection))
 
 ;; [Low API]: receive response.
 ;; (connection) -> (values type body)
 (define (redis-recv-response connection)
-  (unless (redis-connection-open? connection)
+  (unless (redis-bidirectional-input-port connection)
     (assertion-violation 'redis-recv-response
 			 "Connection is closed" connection))
-  (let ((in (client-usocket-input-port (redis-connection-socket connection))))
+  (let ((in (redis-bidirectional-input-port connection)))
     (read-response in)))
 
 ;; [internal]
@@ -104,7 +119,10 @@
      (read-bulk-string in))
     ((#x2a) ;; *
      (read-array in))
-    (else (error 'redis-recv-response "Unknown type" u8))))
+    (else
+     (if (eof-object? u8)
+	 (values 'eof u8) ;; in case of expansion (i.e. pipeline)
+	 (error 'redis-recv-response "Unknown type" u8)))))
 
 (define (read-until-crlf in)
   (let-values (((out extract) (open-bytevector-output-port)))

@@ -41,6 +41,14 @@
 	    redis-connection-close!
 	    call-with-redis-connection
 
+	    ;; pipeline
+	    make-redis-pipeline-connection
+	    redis-pipeline-connection?
+	    redis-pipeline-connection-flush-commends!
+
+	    redis-pipeline-result? redis-pipeline-result-value
+	    redis-pipeline-error? redis-pipeline-error-value
+	    
 	    ;; commands
 	    redis-append
             redis-auth
@@ -275,6 +283,7 @@
     (import (rnrs)
 	    (redis api)
 	    (redis commands)
+	    (redis pipeline)
 	    (redis resp))
 
 (define (call-with-redis-connection host proc . maybe-port)
