@@ -31,20 +31,21 @@
 #!r6rs
 (library (redis api)
     (export redis-send-command
-	    redis-error?
+	    redis-command-error?
 	    redis-error-command
 	    redis-error-connection)
     (import (rnrs)
+	    (redis errors)
 	    (redis resp))
 
-(define-condition-type &redis &error
-  make-redis-error redis-error?
+(define-condition-type &redis-command &redis
+  make-redis-command-error redis-command-error?
   (command redis-error-command)
   (connection redis-error-connection))
 
 (define (redis-error command msg connection)
   (raise (condition
-	  (make-redis-error command connection)
+	  (make-redis-command-error command connection)
 	  (make-who-condition command)
 	  (make-message-condition msg))))
 

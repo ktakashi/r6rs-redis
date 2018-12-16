@@ -31,9 +31,11 @@
 #!r6rs
 (library (redis)
     (export redis-error?
+	    redis-command-error?
 	    redis-error-command
 	    redis-error-connection
 
+	    redis-error-result? redis-error-result-value
 	    ;; connection
 	    make-redis-connection
 	    redis-connection?
@@ -46,8 +48,12 @@
 	    redis-pipeline-connection?
 	    redis-pipeline-connection-flush-commends!
 
-	    redis-pipeline-result? redis-pipeline-result-value
 	    redis-pipeline-error? redis-pipeline-error-value
+
+	    ;; transaction
+	    call-with-redis-transaction
+	    redis-transaction?
+	    redis-exec-transaction!
 	    
 	    ;; commands
 	    redis-append
@@ -282,8 +288,10 @@
 	    redis-send-command)
     (import (rnrs)
 	    (redis api)
+	    (redis errors)
 	    (redis commands)
 	    (redis pipeline)
+	    (redis transaction)
 	    (redis resp))
 
 (define (call-with-redis-connection host proc . maybe-port)

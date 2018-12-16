@@ -37,12 +37,15 @@
 	    redis-bidirectional? 
 	    redis-bidirectional-input-port
 	    redis-bidirectional-output-port
+	    (rename
+	     (redis-bidirectional-sent redis-bidirectional-after-sending))
 
 	    make-redis-connection
 	    redis-connection?
 	    redis-connection-open!
 	    redis-connection-close!)
     (import (rnrs)
+	    (redis errors)
 	    (usocket))
 
 (define-record-type redis-bidirectional
@@ -63,7 +66,8 @@
 		(unless (string? port)
 		  (assertion-violation 'make-redis-connection
 				       "Port must be a string" port))
-		((n #f #f (lambda (me command) #f)) host port #f)))))
+		((n #f #f (lambda (me command) #f))
+		 host port #f)))))
 
 (define (redis-connection-open! connection)
   (when (redis-connection-socket connection)
@@ -172,9 +176,10 @@
 	  (else 
 	   (do ((i 0 (+ i 1)) (v (make-vector n)))
 	       ((= i n) (return v))
-	     ;; TODO check error? or we assume there's no error
-	     ;; inside the array?
+	     ;; we wrap error response
 	     (let-values (((t b) (read-response in)))
-	       (vector-set! v i b)))))))
+	       (vector-set! v i (if (eq? t 'error)
+				    (make-redis-error-result b)
+				    b))))))))
 
 )
