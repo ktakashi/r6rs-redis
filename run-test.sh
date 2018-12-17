@@ -13,7 +13,7 @@ if ! grep -q 'test-deps/testing/lib' '.deps'; then
     echo " --loadpath test-deps/testing/lib" >> .deps
 fi
 
-declare -a implementations=(sagittarius@0.9.2 chez@v9.5)
+declare -a implementations=(sagittarius@0.9.4 chez@v9.5)
 
 check_output() {
     local status=0
