@@ -2,6 +2,7 @@
 (import (rnrs)
 	(redis resp)
 	(redis pipeline)
+	(redis errors)
 	(srfi :64))
 
 (test-begin "Redis pipeline")
@@ -35,7 +36,7 @@
   (let ((r (redis-pipeline-connection-flush-commends! pipeline)))
     (test-equal "count (2)" 2 (vector-length r))
     (test-equal "results (2)" '#(#f #t)
-		(vector-map redis-pipeline-error? r)))
+		(vector-map redis-error-result? r)))
 
   (redis-connection-close! conn))
 

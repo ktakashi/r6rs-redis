@@ -37,16 +37,10 @@
 (library (redis pipeline)
     (export make-redis-pipeline-connection
 	    redis-pipeline-connection?
-	    redis-pipeline-connection-flush-commends!
-
-	    redis-pipeline-error?
-	    (rename (redis-error-result-value redis-pipeline-error-value)))
+	    redis-pipeline-connection-flush-commends!)
     (import (rnrs)
 	    (redis resp)
 	    (redis errors))
-
-(define-record-type redis-pipeline-error
-  (parent <redis-error-result>))
 
 (define-record-type redis-pipeline-connection
   (parent <redis-bidirectional>)
@@ -76,6 +70,6 @@
 	((= i count) vec)
       (let-values (((t v) (redis-recv-response conn)))
 	(vector-set! vec i (if (eq? t 'error)
-			     (make-redis-pipeline-error v)
+			     (make-redis-error-result v)
 			     v))))))
 )

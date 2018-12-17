@@ -48,8 +48,6 @@
 	    redis-pipeline-connection?
 	    redis-pipeline-connection-flush-commends!
 
-	    redis-pipeline-error? redis-pipeline-error-value
-
 	    ;; transaction
 	    call-with-redis-transaction
 	    redis-transaction?
