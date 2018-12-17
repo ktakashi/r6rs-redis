@@ -36,11 +36,15 @@
 	    (rename (redis-bidirectional <redis-bidirectional>))
 	    redis-bidirectional? 
 	    redis-bidirectional-input-port
+	    redis-bidirectional-input-port-set!
 	    redis-bidirectional-output-port
+	    redis-bidirectional-output-port-set!
 	    (rename
 	     (redis-bidirectional-sent redis-bidirectional-after-sending))
 
 	    make-redis-connection
+	    redis-connection-host
+	    redis-connection-port
 	    redis-connection?
 	    redis-connection-open!
 	    redis-connection-close!)

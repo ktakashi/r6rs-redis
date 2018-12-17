@@ -34,7 +34,7 @@ for impl in ${implementations[@]}; do
     echo Testing with ${impl}
     for file in test/*; do
 	scheme-env run ${impl} --loadpath lib ${loadpaths} \
-		   --standard r6rs --program ${file} | check_output
+		   --standard r6rs --program ${file} 2>&1 | check_output
 	case ${EXIT_STATUS} in
 	    0) EXIT_STATUS=$? ;;
 	esac
@@ -46,6 +46,9 @@ cd ..
 
 echo Library test status ${EXIT_STATUS}
 
+if [ ${EXIT_STATUS} != 0 ]; then
+    exit ${EXIT_STATUS}
+fi
 
-exit ${EXIT_STATUS}
-
+/bin/bash ./run-contrib-test.sh
+exit $?
