@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ ! -f '.deps' ]; then
     ./setup-deps.sh

@@ -2,7 +2,7 @@
 
 /bin/sh ./docker.sh start
 
-/bin/sh ./run-test.sh
+/bin/bash ./run-test.sh
 status=$?
 
 /bin/sh ./docker.sh stop
