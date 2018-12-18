@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ ! -f '.deps' ]; then
-    ./setup-deps.sh
+    ./tools/setup-deps.sh
 fi
 
 echo "Preparing dependencies"
@@ -42,7 +42,6 @@ for impl in ${implementations[@]}; do
     echo Done!
     echo
 done
-cd ..
 
 echo Library test status ${EXIT_STATUS}
 
@@ -50,5 +49,5 @@ if [ ${EXIT_STATUS} != 0 ]; then
     exit ${EXIT_STATUS}
 fi
 
-/bin/bash ./run-contrib-test.sh
+/bin/bash ./tools/run-contrib-test.sh
 exit $?

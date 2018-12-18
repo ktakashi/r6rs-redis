@@ -1,10 +1,10 @@
 #!/bin/sh
 
-/bin/sh ./docker.sh start
+/bin/sh ./tools/docker.sh start
 
 /bin/bash ./run-test.sh
 status=$?
 
-/bin/sh ./docker.sh stop
+/bin/sh ./tools/docker.sh stop
 
 exit $status
