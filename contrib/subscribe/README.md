@@ -5,31 +5,65 @@ Redis subscribe
 [Redis Pub/Sub](https://redis.io/topics/pubsub). The basic idea is basically
 a callback model.
 
+Requirement
+===========
+
+To use this library, the following SRFIs must be supported by the 
+impelementation:
+
+- [SRFI 1: List Library](https://srfi.schemers.org/srfi-1/)
+- [SRFI 13: String Libraries](https://srfi.schemers.org/srfi-13/)
+- [SRFI 18: Multithreading support](https://srfi.schemers.org/srfi-18/)
+- [SRFI 19: Time Data Types and Procedures](https://srfi.schemers.org/srfi-19/)
+- [SRFI 27:  Sources of Random Bits](https://srfi.schemers.org/srfi-27/)
+
 APIs
 ====
 
 - `(redis-subscription? obj)`:
+
   Returns `#t` if the given *obj* is a Redis subscription.
+
+  
 - `(redis-subscription-waiting? subscription)`:
+
   Returns `#t` if the given *subscription* is waiting for messages.
+
+  
 - `(redis-subscribe! connection callback channel . channels)`:
+
   Creates a Redis subsctiption which uses *callback* as a callback
   procedure and subscribe to *channel(s)*. Once the subscription is
   created, then the givne *connection* will be invalidated until
   all subscribed channels are unsubscribed.
+
+  
 - `(redis-subscribe! subscription channel . channels)`:
+
   Add given *channel(s)* to the *subscription*.
+
+  
 - `(redis-psubscribe! connection callback channel . channels)`:
+
   The same as `redis-subscribe!` but uses `PSUBSCRIBE` command.
+
+  
 - `(redis-psubscribe! subscription channel . channels)`:
+
   The same as `redis-subscribe!` but uses `PSUBSCRIBE` command.
+
+  
 - `(redis-unsubscribe! subscription . channels)`:
+
   Unsubscribe given *channels* from the *subscription*. If there's
   no channel is given, then it unsubscreibes all the subscription.
 
   Once all the subscriptions are unsubscribed, then the connection
   of the *subscription* will be available again.
+  
+
 - `(redis-punsubscribe! subscription . channels)`:
+
   The same as `redis-unsubscribe!` but using `PUNSUBSCRIBE`.
 
 Callback
@@ -42,4 +76,3 @@ is a bytevector which is the content of the received message.
 
 If the *callback* throws an error, then entire backend thred will
 stops, so it is the users responsibility not to do so.
-
