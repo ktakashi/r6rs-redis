@@ -155,6 +155,18 @@ looks like this:
 In fact, the `BITCOUNT` requires the 2 of the optional argument to be 
 provided, but we don't check on Scheme world.
 
+Sub commands must be packed with list. For example, `XREADGROUP`'s first
+argument is a sub command of `GROUP`. This has to be a list. So the
+API call should look like this:
+
+```scheme
+(redis-xreadgroup redis-connection '(group "group" "consumer))
+```
+
+The sub command can be either a string, which must be a proper sub command
+name, or a symbol. If a symbol is used, as a sub command, then it will be
+converted to upper case.
+
 For more detail of the commands, see official document:
 
 - [Redis Commands](https://redis.io/commands)
