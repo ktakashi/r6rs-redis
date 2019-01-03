@@ -236,9 +236,9 @@
 ;; Summary: Append a value to a key
 ;; Since  : 2.0.0
 (define (redis-append redis-connection key value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-append "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-append "'string' required" value))
   (%redis-send-command redis-connection "APPEND" key value))
 
@@ -246,7 +246,7 @@
 ;; Summary: Authenticate to the server
 ;; Since  : 1.0.0
 (define (redis-auth redis-connection password)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) password)
+  (unless (redis-value? password)
     (assertion-violation 'redis-auth "'string' required" password))
   (%redis-send-command redis-connection "AUTH" password))
 
@@ -266,7 +266,7 @@
 ;; Summary: Count set bits in a string
 ;; Since  : 2.6.0
 (define (redis-bitcount redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-bitcount "'key' required" key))
   (apply %redis-send-command redis-connection "BITCOUNT" key opts))
 
@@ -274,7 +274,7 @@
 ;; Summary: Perform arbitrary bitfield integer operations on strings
 ;; Since  : 3.2.0
 (define (redis-bitfield redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-bitfield "'key' required" key))
   (apply %redis-send-command redis-connection "BITFIELD" key opts))
 
@@ -282,9 +282,9 @@
 ;; Summary: Perform bitwise operations between strings
 ;; Since  : 2.6.0
 (define (redis-bitop redis-connection operation destkey . opts)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) operation)
+  (unless (redis-value? operation)
     (assertion-violation 'redis-bitop "'string' required" operation))
-  (unless (string? destkey)
+  (unless (redis-value? destkey)
     (assertion-violation 'redis-bitop "'key' required" destkey))
   (apply %redis-send-command redis-connection "BITOP" operation destkey opts))
 
@@ -292,7 +292,7 @@
 ;; Summary: Find first bit set or clear in a string
 ;; Since  : 2.8.7
 (define (redis-bitpos redis-connection key bit . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-bitpos "'key' required" key))
   (unless (integer? bit)
     (assertion-violation 'redis-bitpos "'integer' required" bit))
@@ -314,9 +314,9 @@
 ;; Summary: Pop a value from a list, push it to another list and return it; or block until one is available
 ;; Since  : 2.2.0
 (define (redis-brpoplpush redis-connection source destination timeout)
-  (unless (string? source)
+  (unless (redis-value? source)
     (assertion-violation 'redis-brpoplpush "'key' required" source))
-  (unless (string? destination)
+  (unless (redis-value? destination)
     (assertion-violation 'redis-brpoplpush "'key' required" destination))
   (unless (integer? timeout)
     (assertion-violation 'redis-brpoplpush "'integer' required" timeout))
@@ -370,7 +370,7 @@
 ;; Summary: Instruct the server whether to reply to commands
 ;; Since  : 3.2
 (define (redis-client-reply redis-connection reply-mode)
-  (unless ((lambda (v) (or (string? v) (symbol? v))) reply-mode)
+  (unless (string/symbol? reply-mode)
     (assertion-violation 'redis-client-reply "'enum' required" reply-mode))
   (%redis-send-command redis-connection "CLIENT REPLY" reply-mode))
 
@@ -378,7 +378,7 @@
 ;; Summary: Set the current connection name
 ;; Since  : 2.6.9
 (define (redis-client-setname redis-connection connection-name)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) connection-name)
+  (unless (redis-value? connection-name)
     (assertion-violation 'redis-client-setname "'string' required" connection-name))
   (%redis-send-command redis-connection "CLIENT SETNAME" connection-name))
 
@@ -386,7 +386,7 @@
 ;; Summary: Unblock a client blocked in a blocking command from a different connection
 ;; Since  : 5.0.0
 (define (redis-client-unblock redis-connection client-id . opts)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) client-id)
+  (unless (redis-value? client-id)
     (assertion-violation 'redis-client-unblock "'string' required" client-id))
   (apply %redis-send-command redis-connection "CLIENT UNBLOCK" client-id opts))
 
@@ -400,7 +400,7 @@
 ;; Summary: Return the number of failure reports active for a given node
 ;; Since  : 3.0.0
 (define (redis-cluster-count-failure-reports redis-connection node-id)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) node-id)
+  (unless (redis-value? node-id)
     (assertion-violation 'redis-cluster-count-failure-reports "'string' required" node-id))
   (%redis-send-command redis-connection "CLUSTER COUNT-FAILURE-REPORTS" node-id))
 
@@ -428,7 +428,7 @@
 ;; Summary: Remove a node from the nodes table
 ;; Since  : 3.0.0
 (define (redis-cluster-forget redis-connection node-id)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) node-id)
+  (unless (redis-value? node-id)
     (assertion-violation 'redis-cluster-forget "'string' required" node-id))
   (%redis-send-command redis-connection "CLUSTER FORGET" node-id))
 
@@ -452,7 +452,7 @@
 ;; Summary: Returns the hash slot of the specified key
 ;; Since  : 3.0.0
 (define (redis-cluster-keyslot redis-connection key)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-cluster-keyslot "'string' required" key))
   (%redis-send-command redis-connection "CLUSTER KEYSLOT" key))
 
@@ -460,7 +460,7 @@
 ;; Summary: Force a node cluster to handshake with another node
 ;; Since  : 3.0.0
 (define (redis-cluster-meet redis-connection ip port)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) ip)
+  (unless (redis-value? ip)
     (assertion-violation 'redis-cluster-meet "'string' required" ip))
   (unless (integer? port)
     (assertion-violation 'redis-cluster-meet "'integer' required" port))
@@ -476,7 +476,7 @@
 ;; Summary: Reconfigure a node as a replica of the specified master node
 ;; Since  : 3.0.0
 (define (redis-cluster-replicate redis-connection node-id)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) node-id)
+  (unless (redis-value? node-id)
     (assertion-violation 'redis-cluster-replicate "'string' required" node-id))
   (%redis-send-command redis-connection "CLUSTER REPLICATE" node-id))
 
@@ -506,7 +506,7 @@
 (define (redis-cluster-setslot redis-connection slot subcommand . opts)
   (unless (integer? slot)
     (assertion-violation 'redis-cluster-setslot "'integer' required" slot))
-  (unless ((lambda (v) (or (string? v) (symbol? v))) subcommand)
+  (unless (string/symbol? subcommand)
     (assertion-violation 'redis-cluster-setslot "'enum' required" subcommand))
   (apply %redis-send-command redis-connection "CLUSTER SETSLOT" slot subcommand opts))
 
@@ -514,7 +514,7 @@
 ;; Summary: List replica nodes of the specified master node
 ;; Since  : 3.0.0
 (define (redis-cluster-slaves redis-connection node-id)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) node-id)
+  (unless (redis-value? node-id)
     (assertion-violation 'redis-cluster-slaves "'string' required" node-id))
   (%redis-send-command redis-connection "CLUSTER SLAVES" node-id))
 
@@ -522,7 +522,7 @@
 ;; Summary: List replica nodes of the specified master node
 ;; Since  : 5.0.0
 (define (redis-cluster-replicas redis-connection node-id)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) node-id)
+  (unless (redis-value? node-id)
     (assertion-violation 'redis-cluster-replicas "'string' required" node-id))
   (%redis-send-command redis-connection "CLUSTER REPLICAS" node-id))
 
@@ -560,7 +560,7 @@
 ;; Summary: Get the value of a configuration parameter
 ;; Since  : 2.0.0
 (define (redis-config-get redis-connection parameter)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) parameter)
+  (unless (redis-value? parameter)
     (assertion-violation 'redis-config-get "'string' required" parameter))
   (%redis-send-command redis-connection "CONFIG GET" parameter))
 
@@ -574,9 +574,9 @@
 ;; Summary: Set a configuration parameter to the given value
 ;; Since  : 2.0.0
 (define (redis-config-set redis-connection parameter value)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) parameter)
+  (unless (redis-value? parameter)
     (assertion-violation 'redis-config-set "'string' required" parameter))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-config-set "'string' required" value))
   (%redis-send-command redis-connection "CONFIG SET" parameter value))
 
@@ -596,7 +596,7 @@
 ;; Summary: Get debugging information about a key
 ;; Since  : 1.0.0
 (define (redis-debug-object redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-debug-object "'key' required" key))
   (%redis-send-command redis-connection "DEBUG OBJECT" key))
 
@@ -610,7 +610,7 @@
 ;; Summary: Decrement the integer value of a key by one
 ;; Since  : 1.0.0
 (define (redis-decr redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-decr "'key' required" key))
   (%redis-send-command redis-connection "DECR" key))
 
@@ -618,7 +618,7 @@
 ;; Summary: Decrement the integer value of a key by the given number
 ;; Since  : 1.0.0
 (define (redis-decrby redis-connection key decrement)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-decrby "'key' required" key))
   (unless (integer? decrement)
     (assertion-violation 'redis-decrby "'integer' required" decrement))
@@ -640,7 +640,7 @@
 ;; Summary: Return a serialized version of the value stored at the specified key.
 ;; Since  : 2.6.0
 (define (redis-dump redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-dump "'key' required" key))
   (%redis-send-command redis-connection "DUMP" key))
 
@@ -648,7 +648,7 @@
 ;; Summary: Echo the given string
 ;; Since  : 1.0.0
 (define (redis-echo redis-connection message)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) message)
+  (unless (redis-value? message)
     (assertion-violation 'redis-echo "'string' required" message))
   (%redis-send-command redis-connection "ECHO" message))
 
@@ -656,7 +656,7 @@
 ;; Summary: Execute a Lua script server side
 ;; Since  : 2.6.0
 (define (redis-eval redis-connection script numkeys . opts)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) script)
+  (unless (redis-value? script)
     (assertion-violation 'redis-eval "'string' required" script))
   (unless (integer? numkeys)
     (assertion-violation 'redis-eval "'integer' required" numkeys))
@@ -666,7 +666,7 @@
 ;; Summary: Execute a Lua script server side
 ;; Since  : 2.6.0
 (define (redis-evalsha redis-connection sha1 numkeys . opts)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) sha1)
+  (unless (redis-value? sha1)
     (assertion-violation 'redis-evalsha "'string' required" sha1))
   (unless (integer? numkeys)
     (assertion-violation 'redis-evalsha "'integer' required" numkeys))
@@ -688,7 +688,7 @@
 ;; Summary: Set a key's time to live in seconds
 ;; Since  : 1.0.0
 (define (redis-expire redis-connection key seconds)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-expire "'key' required" key))
   (unless (integer? seconds)
     (assertion-violation 'redis-expire "'integer' required" seconds))
@@ -698,9 +698,9 @@
 ;; Summary: Set the expiration for a key as a UNIX timestamp
 ;; Since  : 1.2.0
 (define (redis-expireat redis-connection key timestamp)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-expireat "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) timestamp)
+  (unless (redis-value? timestamp)
     (assertion-violation 'redis-expireat "'posix time' required" timestamp))
   (%redis-send-command redis-connection "EXPIREAT" key timestamp))
 
@@ -720,7 +720,7 @@
 ;; Summary: Add one or more geospatial items in the geospatial index represented using a sorted set
 ;; Since  : 3.2.0
 (define (redis-geoadd redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-geoadd "'key' required" key))
   (apply %redis-send-command redis-connection "GEOADD" key opts))
 
@@ -728,7 +728,7 @@
 ;; Summary: Returns members of a geospatial index as standard geohash strings
 ;; Since  : 3.2.0
 (define (redis-geohash redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-geohash "'key' required" key))
   (apply %redis-send-command redis-connection "GEOHASH" key opts))
 
@@ -736,7 +736,7 @@
 ;; Summary: Returns longitude and latitude of members of a geospatial index
 ;; Since  : 3.2.0
 (define (redis-geopos redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-geopos "'key' required" key))
   (apply %redis-send-command redis-connection "GEOPOS" key opts))
 
@@ -744,11 +744,11 @@
 ;; Summary: Returns the distance between two members of a geospatial index
 ;; Since  : 3.2.0
 (define (redis-geodist redis-connection key member1 member2 . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-geodist "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) member1)
+  (unless (redis-value? member1)
     (assertion-violation 'redis-geodist "'string' required" member1))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) member2)
+  (unless (redis-value? member2)
     (assertion-violation 'redis-geodist "'string' required" member2))
   (apply %redis-send-command redis-connection "GEODIST" key member1 member2 opts))
 
@@ -756,15 +756,15 @@
 ;; Summary: Query a sorted set representing a geospatial index to fetch members matching a given maximum distance from a point
 ;; Since  : 3.2.0
 (define (redis-georadius redis-connection key longitude latitude radius unit . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-georadius "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) longitude)
+  (unless (redis-value? longitude)
     (assertion-violation 'redis-georadius "'double' required" longitude))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) latitude)
+  (unless (redis-value? latitude)
     (assertion-violation 'redis-georadius "'double' required" latitude))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) radius)
+  (unless (redis-value? radius)
     (assertion-violation 'redis-georadius "'double' required" radius))
-  (unless ((lambda (v) (or (string? v) (symbol? v))) unit)
+  (unless (string/symbol? unit)
     (assertion-violation 'redis-georadius "'enum' required" unit))
   (apply %redis-send-command redis-connection "GEORADIUS" key longitude latitude radius unit opts))
 
@@ -772,13 +772,13 @@
 ;; Summary: Query a sorted set representing a geospatial index to fetch members matching a given maximum distance from a member
 ;; Since  : 3.2.0
 (define (redis-georadiusbymember redis-connection key member radius unit . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-georadiusbymember "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) member)
+  (unless (redis-value? member)
     (assertion-violation 'redis-georadiusbymember "'string' required" member))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) radius)
+  (unless (redis-value? radius)
     (assertion-violation 'redis-georadiusbymember "'double' required" radius))
-  (unless ((lambda (v) (or (string? v) (symbol? v))) unit)
+  (unless (string/symbol? unit)
     (assertion-violation 'redis-georadiusbymember "'enum' required" unit))
   (apply %redis-send-command redis-connection "GEORADIUSBYMEMBER" key member radius unit opts))
 
@@ -786,7 +786,7 @@
 ;; Summary: Get the value of a key
 ;; Since  : 1.0.0
 (define (redis-get redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-get "'key' required" key))
   (%redis-send-command redis-connection "GET" key))
 
@@ -794,7 +794,7 @@
 ;; Summary: Returns the bit value at offset in the string value stored at key
 ;; Since  : 2.2.0
 (define (redis-getbit redis-connection key offset)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-getbit "'key' required" key))
   (unless (integer? offset)
     (assertion-violation 'redis-getbit "'integer' required" offset))
@@ -804,7 +804,7 @@
 ;; Summary: Get a substring of the string stored at a key
 ;; Since  : 2.4.0
 (define (redis-getrange redis-connection key start end)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-getrange "'key' required" key))
   (unless (integer? start)
     (assertion-violation 'redis-getrange "'integer' required" start))
@@ -816,9 +816,9 @@
 ;; Summary: Set the string value of a key and return its old value
 ;; Since  : 1.0.0
 (define (redis-getset redis-connection key value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-getset "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-getset "'string' required" value))
   (%redis-send-command redis-connection "GETSET" key value))
 
@@ -826,7 +826,7 @@
 ;; Summary: Delete one or more hash fields
 ;; Since  : 2.0.0
 (define (redis-hdel redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hdel "'key' required" key))
   (apply %redis-send-command redis-connection "HDEL" key opts))
 
@@ -834,9 +834,9 @@
 ;; Summary: Determine if a hash field exists
 ;; Since  : 2.0.0
 (define (redis-hexists redis-connection key field)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hexists "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) field)
+  (unless (redis-value? field)
     (assertion-violation 'redis-hexists "'string' required" field))
   (%redis-send-command redis-connection "HEXISTS" key field))
 
@@ -844,9 +844,9 @@
 ;; Summary: Get the value of a hash field
 ;; Since  : 2.0.0
 (define (redis-hget redis-connection key field)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hget "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) field)
+  (unless (redis-value? field)
     (assertion-violation 'redis-hget "'string' required" field))
   (%redis-send-command redis-connection "HGET" key field))
 
@@ -854,7 +854,7 @@
 ;; Summary: Get all the fields and values in a hash
 ;; Since  : 2.0.0
 (define (redis-hgetall redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hgetall "'key' required" key))
   (%redis-send-command redis-connection "HGETALL" key))
 
@@ -862,9 +862,9 @@
 ;; Summary: Increment the integer value of a hash field by the given number
 ;; Since  : 2.0.0
 (define (redis-hincrby redis-connection key field increment)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hincrby "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) field)
+  (unless (redis-value? field)
     (assertion-violation 'redis-hincrby "'string' required" field))
   (unless (integer? increment)
     (assertion-violation 'redis-hincrby "'integer' required" increment))
@@ -874,11 +874,11 @@
 ;; Summary: Increment the float value of a hash field by the given amount
 ;; Since  : 2.6.0
 (define (redis-hincrbyfloat redis-connection key field increment)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hincrbyfloat "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) field)
+  (unless (redis-value? field)
     (assertion-violation 'redis-hincrbyfloat "'string' required" field))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) increment)
+  (unless (redis-value? increment)
     (assertion-violation 'redis-hincrbyfloat "'double' required" increment))
   (%redis-send-command redis-connection "HINCRBYFLOAT" key field increment))
 
@@ -886,7 +886,7 @@
 ;; Summary: Get all the fields in a hash
 ;; Since  : 2.0.0
 (define (redis-hkeys redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hkeys "'key' required" key))
   (%redis-send-command redis-connection "HKEYS" key))
 
@@ -894,7 +894,7 @@
 ;; Summary: Get the number of fields in a hash
 ;; Since  : 2.0.0
 (define (redis-hlen redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hlen "'key' required" key))
   (%redis-send-command redis-connection "HLEN" key))
 
@@ -902,7 +902,7 @@
 ;; Summary: Get the values of all the given hash fields
 ;; Since  : 2.0.0
 (define (redis-hmget redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hmget "'key' required" key))
   (apply %redis-send-command redis-connection "HMGET" key opts))
 
@@ -910,7 +910,7 @@
 ;; Summary: Set multiple hash fields to multiple values
 ;; Since  : 2.0.0
 (define (redis-hmset redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hmset "'key' required" key))
   (apply %redis-send-command redis-connection "HMSET" key opts))
 
@@ -918,11 +918,11 @@
 ;; Summary: Set the string value of a hash field
 ;; Since  : 2.0.0
 (define (redis-hset redis-connection key field value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hset "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) field)
+  (unless (redis-value? field)
     (assertion-violation 'redis-hset "'string' required" field))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-hset "'string' required" value))
   (%redis-send-command redis-connection "HSET" key field value))
 
@@ -930,11 +930,11 @@
 ;; Summary: Set the value of a hash field, only if the field does not exist
 ;; Since  : 2.0.0
 (define (redis-hsetnx redis-connection key field value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hsetnx "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) field)
+  (unless (redis-value? field)
     (assertion-violation 'redis-hsetnx "'string' required" field))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-hsetnx "'string' required" value))
   (%redis-send-command redis-connection "HSETNX" key field value))
 
@@ -942,9 +942,9 @@
 ;; Summary: Get the length of the value of a hash field
 ;; Since  : 3.2.0
 (define (redis-hstrlen redis-connection key field)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hstrlen "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) field)
+  (unless (redis-value? field)
     (assertion-violation 'redis-hstrlen "'string' required" field))
   (%redis-send-command redis-connection "HSTRLEN" key field))
 
@@ -952,7 +952,7 @@
 ;; Summary: Get all the values in a hash
 ;; Since  : 2.0.0
 (define (redis-hvals redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hvals "'key' required" key))
   (%redis-send-command redis-connection "HVALS" key))
 
@@ -960,7 +960,7 @@
 ;; Summary: Increment the integer value of a key by one
 ;; Since  : 1.0.0
 (define (redis-incr redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-incr "'key' required" key))
   (%redis-send-command redis-connection "INCR" key))
 
@@ -968,7 +968,7 @@
 ;; Summary: Increment the integer value of a key by the given amount
 ;; Since  : 1.0.0
 (define (redis-incrby redis-connection key increment)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-incrby "'key' required" key))
   (unless (integer? increment)
     (assertion-violation 'redis-incrby "'integer' required" increment))
@@ -978,9 +978,9 @@
 ;; Summary: Increment the float value of a key by the given amount
 ;; Since  : 2.6.0
 (define (redis-incrbyfloat redis-connection key increment)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-incrbyfloat "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) increment)
+  (unless (redis-value? increment)
     (assertion-violation 'redis-incrbyfloat "'double' required" increment))
   (%redis-send-command redis-connection "INCRBYFLOAT" key increment))
 
@@ -994,7 +994,7 @@
 ;; Summary: Find all keys matching the given pattern
 ;; Since  : 1.0.0
 (define (redis-keys redis-connection pattern)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) pattern)
+  (unless (redis-value? pattern)
     (assertion-violation 'redis-keys "'pattern' required" pattern))
   (%redis-send-command redis-connection "KEYS" pattern))
 
@@ -1008,7 +1008,7 @@
 ;; Summary: Get an element from a list by its index
 ;; Since  : 1.0.0
 (define (redis-lindex redis-connection key index)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-lindex "'key' required" key))
   (unless (integer? index)
     (assertion-violation 'redis-lindex "'integer' required" index))
@@ -1018,13 +1018,13 @@
 ;; Summary: Insert an element before or after another element in a list
 ;; Since  : 2.2.0
 (define (redis-linsert redis-connection key where pivot value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-linsert "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (symbol? v))) where)
+  (unless (string/symbol? where)
     (assertion-violation 'redis-linsert "'enum' required" where))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) pivot)
+  (unless (redis-value? pivot)
     (assertion-violation 'redis-linsert "'string' required" pivot))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-linsert "'string' required" value))
   (%redis-send-command redis-connection "LINSERT" key where pivot value))
 
@@ -1032,7 +1032,7 @@
 ;; Summary: Get the length of a list
 ;; Since  : 1.0.0
 (define (redis-llen redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-llen "'key' required" key))
   (%redis-send-command redis-connection "LLEN" key))
 
@@ -1040,7 +1040,7 @@
 ;; Summary: Remove and get the first element in a list
 ;; Since  : 1.0.0
 (define (redis-lpop redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-lpop "'key' required" key))
   (%redis-send-command redis-connection "LPOP" key))
 
@@ -1048,7 +1048,7 @@
 ;; Summary: Prepend one or multiple values to a list
 ;; Since  : 1.0.0
 (define (redis-lpush redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-lpush "'key' required" key))
   (apply %redis-send-command redis-connection "LPUSH" key opts))
 
@@ -1056,9 +1056,9 @@
 ;; Summary: Prepend a value to a list, only if the list exists
 ;; Since  : 2.2.0
 (define (redis-lpushx redis-connection key value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-lpushx "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-lpushx "'string' required" value))
   (%redis-send-command redis-connection "LPUSHX" key value))
 
@@ -1066,7 +1066,7 @@
 ;; Summary: Get a range of elements from a list
 ;; Since  : 1.0.0
 (define (redis-lrange redis-connection key start stop)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-lrange "'key' required" key))
   (unless (integer? start)
     (assertion-violation 'redis-lrange "'integer' required" start))
@@ -1078,11 +1078,11 @@
 ;; Summary: Remove elements from a list
 ;; Since  : 1.0.0
 (define (redis-lrem redis-connection key count value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-lrem "'key' required" key))
   (unless (integer? count)
     (assertion-violation 'redis-lrem "'integer' required" count))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-lrem "'string' required" value))
   (%redis-send-command redis-connection "LREM" key count value))
 
@@ -1090,11 +1090,11 @@
 ;; Summary: Set the value of an element in a list by its index
 ;; Since  : 1.0.0
 (define (redis-lset redis-connection key index value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-lset "'key' required" key))
   (unless (integer? index)
     (assertion-violation 'redis-lset "'integer' required" index))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-lset "'string' required" value))
   (%redis-send-command redis-connection "LSET" key index value))
 
@@ -1102,7 +1102,7 @@
 ;; Summary: Trim a list to the specified range
 ;; Since  : 1.0.0
 (define (redis-ltrim redis-connection key start stop)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-ltrim "'key' required" key))
   (unless (integer? start)
     (assertion-violation 'redis-ltrim "'integer' required" start))
@@ -1144,7 +1144,7 @@
 ;; Summary: Estimate the memory usage of a key
 ;; Since  : 4.0.0
 (define (redis-memory-usage redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-memory-usage "'key' required" key))
   (apply %redis-send-command redis-connection "MEMORY USAGE" key opts))
 
@@ -1158,11 +1158,11 @@
 ;; Summary: Atomically transfer a key from a Redis instance to another one.
 ;; Since  : 2.6.0
 (define (redis-migrate redis-connection host port key destination-db timeout . opts)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) host)
+  (unless (redis-value? host)
     (assertion-violation 'redis-migrate "'string' required" host))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) port)
+  (unless (redis-value? port)
     (assertion-violation 'redis-migrate "'string' required" port))
-  (unless ((lambda (v) (or (string? v) (symbol? v))) key)
+  (unless (string/symbol? key)
     (assertion-violation 'redis-migrate "'enum' required" key))
   (unless (integer? destination-db)
     (assertion-violation 'redis-migrate "'integer' required" destination-db))
@@ -1180,7 +1180,7 @@
 ;; Summary: Move a key to another database
 ;; Since  : 1.0.0
 (define (redis-move redis-connection key db)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-move "'key' required" key))
   (unless (integer? db)
     (assertion-violation 'redis-move "'integer' required" db))
@@ -1208,7 +1208,7 @@
 ;; Summary: Inspect the internals of Redis objects
 ;; Since  : 2.2.3
 (define (redis-object redis-connection subcommand . opts)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) subcommand)
+  (unless (redis-value? subcommand)
     (assertion-violation 'redis-object "'string' required" subcommand))
   (apply %redis-send-command redis-connection "OBJECT" subcommand opts))
 
@@ -1216,7 +1216,7 @@
 ;; Summary: Remove the expiration from a key
 ;; Since  : 2.2.0
 (define (redis-persist redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-persist "'key' required" key))
   (%redis-send-command redis-connection "PERSIST" key))
 
@@ -1224,7 +1224,7 @@
 ;; Summary: Set a key's time to live in milliseconds
 ;; Since  : 2.6.0
 (define (redis-pexpire redis-connection key milliseconds)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-pexpire "'key' required" key))
   (unless (integer? milliseconds)
     (assertion-violation 'redis-pexpire "'integer' required" milliseconds))
@@ -1234,9 +1234,9 @@
 ;; Summary: Set the expiration for a key as a UNIX timestamp specified in milliseconds
 ;; Since  : 2.6.0
 (define (redis-pexpireat redis-connection key milliseconds-timestamp)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-pexpireat "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) milliseconds-timestamp)
+  (unless (redis-value? milliseconds-timestamp)
     (assertion-violation 'redis-pexpireat "'posix time' required" milliseconds-timestamp))
   (%redis-send-command redis-connection "PEXPIREAT" key milliseconds-timestamp))
 
@@ -1244,7 +1244,7 @@
 ;; Summary: Adds the specified elements to the specified HyperLogLog.
 ;; Since  : 2.8.9
 (define (redis-pfadd redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-pfadd "'key' required" key))
   (apply %redis-send-command redis-connection "PFADD" key opts))
 
@@ -1258,7 +1258,7 @@
 ;; Summary: Merge N different HyperLogLogs into a single one.
 ;; Since  : 2.8.9
 (define (redis-pfmerge redis-connection destkey . opts)
-  (unless (string? destkey)
+  (unless (redis-value? destkey)
     (assertion-violation 'redis-pfmerge "'key' required" destkey))
   (apply %redis-send-command redis-connection "PFMERGE" destkey opts))
 
@@ -1272,11 +1272,11 @@
 ;; Summary: Set the value and expiration in milliseconds of a key
 ;; Since  : 2.6.0
 (define (redis-psetex redis-connection key milliseconds value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-psetex "'key' required" key))
   (unless (integer? milliseconds)
     (assertion-violation 'redis-psetex "'integer' required" milliseconds))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-psetex "'string' required" value))
   (%redis-send-command redis-connection "PSETEX" key milliseconds value))
 
@@ -1290,7 +1290,7 @@
 ;; Summary: Inspect the state of the Pub/Sub subsystem
 ;; Since  : 2.8.0
 (define (redis-pubsub redis-connection subcommand . opts)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) subcommand)
+  (unless (redis-value? subcommand)
     (assertion-violation 'redis-pubsub "'string' required" subcommand))
   (apply %redis-send-command redis-connection "PUBSUB" subcommand opts))
 
@@ -1298,7 +1298,7 @@
 ;; Summary: Get the time to live for a key in milliseconds
 ;; Since  : 2.6.0
 (define (redis-pttl redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-pttl "'key' required" key))
   (%redis-send-command redis-connection "PTTL" key))
 
@@ -1306,9 +1306,9 @@
 ;; Summary: Post a message to a channel
 ;; Since  : 2.0.0
 (define (redis-publish redis-connection channel message)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) channel)
+  (unless (redis-value? channel)
     (assertion-violation 'redis-publish "'string' required" channel))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) message)
+  (unless (redis-value? message)
     (assertion-violation 'redis-publish "'string' required" message))
   (%redis-send-command redis-connection "PUBLISH" channel message))
 
@@ -1346,9 +1346,9 @@
 ;; Summary: Rename a key
 ;; Since  : 1.0.0
 (define (redis-rename redis-connection key newkey)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-rename "'key' required" key))
-  (unless (string? newkey)
+  (unless (redis-value? newkey)
     (assertion-violation 'redis-rename "'key' required" newkey))
   (%redis-send-command redis-connection "RENAME" key newkey))
 
@@ -1356,9 +1356,9 @@
 ;; Summary: Rename a key, only if the new key does not exist
 ;; Since  : 1.0.0
 (define (redis-renamenx redis-connection key newkey)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-renamenx "'key' required" key))
-  (unless (string? newkey)
+  (unless (redis-value? newkey)
     (assertion-violation 'redis-renamenx "'key' required" newkey))
   (%redis-send-command redis-connection "RENAMENX" key newkey))
 
@@ -1366,11 +1366,11 @@
 ;; Summary: Create a key using the provided serialized value, previously obtained using DUMP.
 ;; Since  : 2.6.0
 (define (redis-restore redis-connection key ttl serialized-value . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-restore "'key' required" key))
   (unless (integer? ttl)
     (assertion-violation 'redis-restore "'integer' required" ttl))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) serialized-value)
+  (unless (redis-value? serialized-value)
     (assertion-violation 'redis-restore "'string' required" serialized-value))
   (apply %redis-send-command redis-connection "RESTORE" key ttl serialized-value opts))
 
@@ -1384,7 +1384,7 @@
 ;; Summary: Remove and get the last element in a list
 ;; Since  : 1.0.0
 (define (redis-rpop redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-rpop "'key' required" key))
   (%redis-send-command redis-connection "RPOP" key))
 
@@ -1392,9 +1392,9 @@
 ;; Summary: Remove the last element in a list, prepend it to another list and return it
 ;; Since  : 1.2.0
 (define (redis-rpoplpush redis-connection source destination)
-  (unless (string? source)
+  (unless (redis-value? source)
     (assertion-violation 'redis-rpoplpush "'key' required" source))
-  (unless (string? destination)
+  (unless (redis-value? destination)
     (assertion-violation 'redis-rpoplpush "'key' required" destination))
   (%redis-send-command redis-connection "RPOPLPUSH" source destination))
 
@@ -1402,7 +1402,7 @@
 ;; Summary: Append one or multiple values to a list
 ;; Since  : 1.0.0
 (define (redis-rpush redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-rpush "'key' required" key))
   (apply %redis-send-command redis-connection "RPUSH" key opts))
 
@@ -1410,9 +1410,9 @@
 ;; Summary: Append a value to a list, only if the list exists
 ;; Since  : 2.2.0
 (define (redis-rpushx redis-connection key value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-rpushx "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-rpushx "'string' required" value))
   (%redis-send-command redis-connection "RPUSHX" key value))
 
@@ -1420,7 +1420,7 @@
 ;; Summary: Add one or more members to a set
 ;; Since  : 1.0.0
 (define (redis-sadd redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-sadd "'key' required" key))
   (apply %redis-send-command redis-connection "SADD" key opts))
 
@@ -1434,7 +1434,7 @@
 ;; Summary: Get the number of members in a set
 ;; Since  : 1.0.0
 (define (redis-scard redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-scard "'key' required" key))
   (%redis-send-command redis-connection "SCARD" key))
 
@@ -1442,7 +1442,7 @@
 ;; Summary: Set the debug mode for executed scripts.
 ;; Since  : 3.2.0
 (define (redis-script-debug redis-connection mode)
-  (unless ((lambda (v) (or (string? v) (symbol? v))) mode)
+  (unless (string/symbol? mode)
     (assertion-violation 'redis-script-debug "'enum' required" mode))
   (%redis-send-command redis-connection "SCRIPT DEBUG" mode))
 
@@ -1468,7 +1468,7 @@
 ;; Summary: Load the specified Lua script into the script cache.
 ;; Since  : 2.6.0
 (define (redis-script-load redis-connection script)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) script)
+  (unless (redis-value? script)
     (assertion-violation 'redis-script-load "'string' required" script))
   (%redis-send-command redis-connection "SCRIPT LOAD" script))
 
@@ -1482,7 +1482,7 @@
 ;; Summary: Subtract multiple sets and store the resulting set in a key
 ;; Since  : 1.0.0
 (define (redis-sdiffstore redis-connection destination . opts)
-  (unless (string? destination)
+  (unless (redis-value? destination)
     (assertion-violation 'redis-sdiffstore "'key' required" destination))
   (apply %redis-send-command redis-connection "SDIFFSTORE" destination opts))
 
@@ -1498,9 +1498,9 @@
 ;; Summary: Set the string value of a key
 ;; Since  : 1.0.0
 (define (redis-set redis-connection key value . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-set "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-set "'string' required" value))
   (apply %redis-send-command redis-connection "SET" key value opts))
 
@@ -1508,11 +1508,11 @@
 ;; Summary: Sets or clears the bit at offset in the string value stored at key
 ;; Since  : 2.2.0
 (define (redis-setbit redis-connection key offset value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-setbit "'key' required" key))
   (unless (integer? offset)
     (assertion-violation 'redis-setbit "'integer' required" offset))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-setbit "'string' required" value))
   (%redis-send-command redis-connection "SETBIT" key offset value))
 
@@ -1520,11 +1520,11 @@
 ;; Summary: Set the value and expiration of a key
 ;; Since  : 2.0.0
 (define (redis-setex redis-connection key seconds value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-setex "'key' required" key))
   (unless (integer? seconds)
     (assertion-violation 'redis-setex "'integer' required" seconds))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-setex "'string' required" value))
   (%redis-send-command redis-connection "SETEX" key seconds value))
 
@@ -1532,9 +1532,9 @@
 ;; Summary: Set the value of a key, only if the key does not exist
 ;; Since  : 1.0.0
 (define (redis-setnx redis-connection key value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-setnx "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-setnx "'string' required" value))
   (%redis-send-command redis-connection "SETNX" key value))
 
@@ -1542,11 +1542,11 @@
 ;; Summary: Overwrite part of a string at key starting at the specified offset
 ;; Since  : 2.2.0
 (define (redis-setrange redis-connection key offset value)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-setrange "'key' required" key))
   (unless (integer? offset)
     (assertion-violation 'redis-setrange "'integer' required" offset))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) value)
+  (unless (redis-value? value)
     (assertion-violation 'redis-setrange "'string' required" value))
   (%redis-send-command redis-connection "SETRANGE" key offset value))
 
@@ -1566,7 +1566,7 @@
 ;; Summary: Intersect multiple sets and store the resulting set in a key
 ;; Since  : 1.0.0
 (define (redis-sinterstore redis-connection destination . opts)
-  (unless (string? destination)
+  (unless (redis-value? destination)
     (assertion-violation 'redis-sinterstore "'key' required" destination))
   (apply %redis-send-command redis-connection "SINTERSTORE" destination opts))
 
@@ -1574,9 +1574,9 @@
 ;; Summary: Determine if a given value is a member of a set
 ;; Since  : 1.0.0
 (define (redis-sismember redis-connection key member)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-sismember "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) member)
+  (unless (redis-value? member)
     (assertion-violation 'redis-sismember "'string' required" member))
   (%redis-send-command redis-connection "SISMEMBER" key member))
 
@@ -1584,9 +1584,9 @@
 ;; Summary: Make the server a replica of another instance, or promote it as master. Deprecated starting with Redis 5. Use REPLICAOF instead.
 ;; Since  : 1.0.0
 (define (redis-slaveof redis-connection host port)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) host)
+  (unless (redis-value? host)
     (assertion-violation 'redis-slaveof "'string' required" host))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) port)
+  (unless (redis-value? port)
     (assertion-violation 'redis-slaveof "'string' required" port))
   (%redis-send-command redis-connection "SLAVEOF" host port))
 
@@ -1594,9 +1594,9 @@
 ;; Summary: Make the server a replica of another instance, or promote it as master.
 ;; Since  : 5.0.0
 (define (redis-replicaof redis-connection host port)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) host)
+  (unless (redis-value? host)
     (assertion-violation 'redis-replicaof "'string' required" host))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) port)
+  (unless (redis-value? port)
     (assertion-violation 'redis-replicaof "'string' required" port))
   (%redis-send-command redis-connection "REPLICAOF" host port))
 
@@ -1604,7 +1604,7 @@
 ;; Summary: Manages the Redis slow queries log
 ;; Since  : 2.2.12
 (define (redis-slowlog redis-connection subcommand . opts)
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) subcommand)
+  (unless (redis-value? subcommand)
     (assertion-violation 'redis-slowlog "'string' required" subcommand))
   (apply %redis-send-command redis-connection "SLOWLOG" subcommand opts))
 
@@ -1612,7 +1612,7 @@
 ;; Summary: Get all the members in a set
 ;; Since  : 1.0.0
 (define (redis-smembers redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-smembers "'key' required" key))
   (%redis-send-command redis-connection "SMEMBERS" key))
 
@@ -1620,11 +1620,11 @@
 ;; Summary: Move a member from one set to another
 ;; Since  : 1.0.0
 (define (redis-smove redis-connection source destination member)
-  (unless (string? source)
+  (unless (redis-value? source)
     (assertion-violation 'redis-smove "'key' required" source))
-  (unless (string? destination)
+  (unless (redis-value? destination)
     (assertion-violation 'redis-smove "'key' required" destination))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) member)
+  (unless (redis-value? member)
     (assertion-violation 'redis-smove "'string' required" member))
   (%redis-send-command redis-connection "SMOVE" source destination member))
 
@@ -1632,7 +1632,7 @@
 ;; Summary: Sort the elements in a list, set or sorted set
 ;; Since  : 1.0.0
 (define (redis-sort redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-sort "'key' required" key))
   (apply %redis-send-command redis-connection "SORT" key opts))
 
@@ -1640,7 +1640,7 @@
 ;; Summary: Remove and return one or multiple random members from a set
 ;; Since  : 1.0.0
 (define (redis-spop redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-spop "'key' required" key))
   (apply %redis-send-command redis-connection "SPOP" key opts))
 
@@ -1648,7 +1648,7 @@
 ;; Summary: Get one or multiple random members from a set
 ;; Since  : 1.0.0
 (define (redis-srandmember redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-srandmember "'key' required" key))
   (apply %redis-send-command redis-connection "SRANDMEMBER" key opts))
 
@@ -1656,7 +1656,7 @@
 ;; Summary: Remove one or more members from a set
 ;; Since  : 1.0.0
 (define (redis-srem redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-srem "'key' required" key))
   (apply %redis-send-command redis-connection "SREM" key opts))
 
@@ -1664,7 +1664,7 @@
 ;; Summary: Get the length of the value stored in a key
 ;; Since  : 2.2.0
 (define (redis-strlen redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-strlen "'key' required" key))
   (%redis-send-command redis-connection "STRLEN" key))
 
@@ -1684,7 +1684,7 @@
 ;; Summary: Add multiple sets and store the resulting set in a key
 ;; Since  : 1.0.0
 (define (redis-sunionstore redis-connection destination . opts)
-  (unless (string? destination)
+  (unless (redis-value? destination)
     (assertion-violation 'redis-sunionstore "'key' required" destination))
   (apply %redis-send-command redis-connection "SUNIONSTORE" destination opts))
 
@@ -1720,7 +1720,7 @@
 ;; Summary: Get the time to live for a key
 ;; Since  : 1.0.0
 (define (redis-ttl redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-ttl "'key' required" key))
   (%redis-send-command redis-connection "TTL" key))
 
@@ -1728,7 +1728,7 @@
 ;; Summary: Determine the type stored at key
 ;; Since  : 1.0.0
 (define (redis-type redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-type "'key' required" key))
   (%redis-send-command redis-connection "TYPE" key))
 
@@ -1770,7 +1770,7 @@
 ;; Summary: Add one or more members to a sorted set, or update its score if it already exists
 ;; Since  : 1.2.0
 (define (redis-zadd redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zadd "'key' required" key))
   (apply %redis-send-command redis-connection "ZADD" key opts))
 
@@ -1778,7 +1778,7 @@
 ;; Summary: Get the number of members in a sorted set
 ;; Since  : 1.2.0
 (define (redis-zcard redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zcard "'key' required" key))
   (%redis-send-command redis-connection "ZCARD" key))
 
@@ -1786,11 +1786,11 @@
 ;; Summary: Count the members in a sorted set with scores within the given values
 ;; Since  : 2.0.0
 (define (redis-zcount redis-connection key min max)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zcount "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) min)
+  (unless (redis-value? min)
     (assertion-violation 'redis-zcount "'double' required" min))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) max)
+  (unless (redis-value? max)
     (assertion-violation 'redis-zcount "'double' required" max))
   (%redis-send-command redis-connection "ZCOUNT" key min max))
 
@@ -1798,11 +1798,11 @@
 ;; Summary: Increment the score of a member in a sorted set
 ;; Since  : 1.2.0
 (define (redis-zincrby redis-connection key increment member)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zincrby "'key' required" key))
   (unless (integer? increment)
     (assertion-violation 'redis-zincrby "'integer' required" increment))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) member)
+  (unless (redis-value? member)
     (assertion-violation 'redis-zincrby "'string' required" member))
   (%redis-send-command redis-connection "ZINCRBY" key increment member))
 
@@ -1810,7 +1810,7 @@
 ;; Summary: Intersect multiple sorted sets and store the resulting sorted set in a new key
 ;; Since  : 2.0.0
 (define (redis-zinterstore redis-connection destination numkeys . opts)
-  (unless (string? destination)
+  (unless (redis-value? destination)
     (assertion-violation 'redis-zinterstore "'key' required" destination))
   (unless (integer? numkeys)
     (assertion-violation 'redis-zinterstore "'integer' required" numkeys))
@@ -1820,11 +1820,11 @@
 ;; Summary: Count the number of members in a sorted set between a given lexicographical range
 ;; Since  : 2.8.9
 (define (redis-zlexcount redis-connection key min max)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zlexcount "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) min)
+  (unless (redis-value? min)
     (assertion-violation 'redis-zlexcount "'string' required" min))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) max)
+  (unless (redis-value? max)
     (assertion-violation 'redis-zlexcount "'string' required" max))
   (%redis-send-command redis-connection "ZLEXCOUNT" key min max))
 
@@ -1832,7 +1832,7 @@
 ;; Summary: Remove and return members with the highest scores in a sorted set
 ;; Since  : 5.0.0
 (define (redis-zpopmax redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zpopmax "'key' required" key))
   (apply %redis-send-command redis-connection "ZPOPMAX" key opts))
 
@@ -1840,7 +1840,7 @@
 ;; Summary: Remove and return members with the lowest scores in a sorted set
 ;; Since  : 5.0.0
 (define (redis-zpopmin redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zpopmin "'key' required" key))
   (apply %redis-send-command redis-connection "ZPOPMIN" key opts))
 
@@ -1848,7 +1848,7 @@
 ;; Summary: Return a range of members in a sorted set, by index
 ;; Since  : 1.2.0
 (define (redis-zrange redis-connection key start stop . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zrange "'key' required" key))
   (unless (integer? start)
     (assertion-violation 'redis-zrange "'integer' required" start))
@@ -1860,11 +1860,11 @@
 ;; Summary: Return a range of members in a sorted set, by lexicographical range
 ;; Since  : 2.8.9
 (define (redis-zrangebylex redis-connection key min max . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zrangebylex "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) min)
+  (unless (redis-value? min)
     (assertion-violation 'redis-zrangebylex "'string' required" min))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) max)
+  (unless (redis-value? max)
     (assertion-violation 'redis-zrangebylex "'string' required" max))
   (apply %redis-send-command redis-connection "ZRANGEBYLEX" key min max opts))
 
@@ -1872,11 +1872,11 @@
 ;; Summary: Return a range of members in a sorted set, by lexicographical range, ordered from higher to lower strings.
 ;; Since  : 2.8.9
 (define (redis-zrevrangebylex redis-connection key max min . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zrevrangebylex "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) max)
+  (unless (redis-value? max)
     (assertion-violation 'redis-zrevrangebylex "'string' required" max))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) min)
+  (unless (redis-value? min)
     (assertion-violation 'redis-zrevrangebylex "'string' required" min))
   (apply %redis-send-command redis-connection "ZREVRANGEBYLEX" key max min opts))
 
@@ -1884,11 +1884,11 @@
 ;; Summary: Return a range of members in a sorted set, by score
 ;; Since  : 1.0.5
 (define (redis-zrangebyscore redis-connection key min max . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zrangebyscore "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) min)
+  (unless (redis-value? min)
     (assertion-violation 'redis-zrangebyscore "'double' required" min))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) max)
+  (unless (redis-value? max)
     (assertion-violation 'redis-zrangebyscore "'double' required" max))
   (apply %redis-send-command redis-connection "ZRANGEBYSCORE" key min max opts))
 
@@ -1896,9 +1896,9 @@
 ;; Summary: Determine the index of a member in a sorted set
 ;; Since  : 2.0.0
 (define (redis-zrank redis-connection key member)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zrank "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) member)
+  (unless (redis-value? member)
     (assertion-violation 'redis-zrank "'string' required" member))
   (%redis-send-command redis-connection "ZRANK" key member))
 
@@ -1906,7 +1906,7 @@
 ;; Summary: Remove one or more members from a sorted set
 ;; Since  : 1.2.0
 (define (redis-zrem redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zrem "'key' required" key))
   (apply %redis-send-command redis-connection "ZREM" key opts))
 
@@ -1914,11 +1914,11 @@
 ;; Summary: Remove all members in a sorted set between the given lexicographical range
 ;; Since  : 2.8.9
 (define (redis-zremrangebylex redis-connection key min max)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zremrangebylex "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) min)
+  (unless (redis-value? min)
     (assertion-violation 'redis-zremrangebylex "'string' required" min))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) max)
+  (unless (redis-value? max)
     (assertion-violation 'redis-zremrangebylex "'string' required" max))
   (%redis-send-command redis-connection "ZREMRANGEBYLEX" key min max))
 
@@ -1926,7 +1926,7 @@
 ;; Summary: Remove all members in a sorted set within the given indexes
 ;; Since  : 2.0.0
 (define (redis-zremrangebyrank redis-connection key start stop)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zremrangebyrank "'key' required" key))
   (unless (integer? start)
     (assertion-violation 'redis-zremrangebyrank "'integer' required" start))
@@ -1938,11 +1938,11 @@
 ;; Summary: Remove all members in a sorted set within the given scores
 ;; Since  : 1.2.0
 (define (redis-zremrangebyscore redis-connection key min max)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zremrangebyscore "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) min)
+  (unless (redis-value? min)
     (assertion-violation 'redis-zremrangebyscore "'double' required" min))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) max)
+  (unless (redis-value? max)
     (assertion-violation 'redis-zremrangebyscore "'double' required" max))
   (%redis-send-command redis-connection "ZREMRANGEBYSCORE" key min max))
 
@@ -1950,7 +1950,7 @@
 ;; Summary: Return a range of members in a sorted set, by index, with scores ordered from high to low
 ;; Since  : 1.2.0
 (define (redis-zrevrange redis-connection key start stop . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zrevrange "'key' required" key))
   (unless (integer? start)
     (assertion-violation 'redis-zrevrange "'integer' required" start))
@@ -1962,11 +1962,11 @@
 ;; Summary: Return a range of members in a sorted set, by score, with scores ordered from high to low
 ;; Since  : 2.2.0
 (define (redis-zrevrangebyscore redis-connection key max min . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zrevrangebyscore "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) max)
+  (unless (redis-value? max)
     (assertion-violation 'redis-zrevrangebyscore "'double' required" max))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) min)
+  (unless (redis-value? min)
     (assertion-violation 'redis-zrevrangebyscore "'double' required" min))
   (apply %redis-send-command redis-connection "ZREVRANGEBYSCORE" key max min opts))
 
@@ -1974,9 +1974,9 @@
 ;; Summary: Determine the index of a member in a sorted set, with scores ordered from high to low
 ;; Since  : 2.0.0
 (define (redis-zrevrank redis-connection key member)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zrevrank "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) member)
+  (unless (redis-value? member)
     (assertion-violation 'redis-zrevrank "'string' required" member))
   (%redis-send-command redis-connection "ZREVRANK" key member))
 
@@ -1984,9 +1984,9 @@
 ;; Summary: Get the score associated with the given member in a sorted set
 ;; Since  : 1.2.0
 (define (redis-zscore redis-connection key member)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zscore "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) member)
+  (unless (redis-value? member)
     (assertion-violation 'redis-zscore "'string' required" member))
   (%redis-send-command redis-connection "ZSCORE" key member))
 
@@ -1994,7 +1994,7 @@
 ;; Summary: Add multiple sorted sets and store the resulting sorted set in a new key
 ;; Since  : 2.0.0
 (define (redis-zunionstore redis-connection destination numkeys . opts)
-  (unless (string? destination)
+  (unless (redis-value? destination)
     (assertion-violation 'redis-zunionstore "'key' required" destination))
   (unless (integer? numkeys)
     (assertion-violation 'redis-zunionstore "'integer' required" numkeys))
@@ -2012,7 +2012,7 @@
 ;; Summary: Incrementally iterate Set elements
 ;; Since  : 2.8.0
 (define (redis-sscan redis-connection key cursor . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-sscan "'key' required" key))
   (unless (integer? cursor)
     (assertion-violation 'redis-sscan "'integer' required" cursor))
@@ -2022,7 +2022,7 @@
 ;; Summary: Incrementally iterate hash fields and associated values
 ;; Since  : 2.8.0
 (define (redis-hscan redis-connection key cursor . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-hscan "'key' required" key))
   (unless (integer? cursor)
     (assertion-violation 'redis-hscan "'integer' required" cursor))
@@ -2032,7 +2032,7 @@
 ;; Summary: Incrementally iterate sorted sets elements and associated scores
 ;; Since  : 2.8.0
 (define (redis-zscan redis-connection key cursor . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-zscan "'key' required" key))
   (unless (integer? cursor)
     (assertion-violation 'redis-zscan "'integer' required" cursor))
@@ -2048,9 +2048,9 @@
 ;; Summary: Appends a new entry to a stream
 ;; Since  : 5.0.0
 (define (redis-xadd redis-connection key ID . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-xadd "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) ID)
+  (unless (redis-value? ID)
     (assertion-violation 'redis-xadd "'string' required" ID))
   (apply %redis-send-command redis-connection "XADD" key ID opts))
 
@@ -2058,9 +2058,9 @@
 ;; Summary: Trims the stream to (approximately if '~' is passed) a certain size
 ;; Since  : 5.0.0
 (define (redis-xtrim redis-connection key strategy . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-xtrim "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (symbol? v))) strategy)
+  (unless (string/symbol? strategy)
     (assertion-violation 'redis-xtrim "'enum' required" strategy))
   (apply %redis-send-command redis-connection "XTRIM" key strategy opts))
 
@@ -2068,7 +2068,7 @@
 ;; Summary: Removes the specified entries from the stream. Returns the number of items actually deleted, that may be different from the number of IDs passed in case certain IDs do not exist.
 ;; Since  : 5.0.0
 (define (redis-xdel redis-connection key . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-xdel "'key' required" key))
   (apply %redis-send-command redis-connection "XDEL" key opts))
 
@@ -2076,11 +2076,11 @@
 ;; Summary: Return a range of elements in a stream, with IDs matching the specified IDs interval
 ;; Since  : 5.0.0
 (define (redis-xrange redis-connection key start end . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-xrange "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) start)
+  (unless (redis-value? start)
     (assertion-violation 'redis-xrange "'string' required" start))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) end)
+  (unless (redis-value? end)
     (assertion-violation 'redis-xrange "'string' required" end))
   (apply %redis-send-command redis-connection "XRANGE" key start end opts))
 
@@ -2088,11 +2088,11 @@
 ;; Summary: Return a range of elements in a stream, with IDs matching the specified IDs interval, in reverse order (from greater to smaller IDs) compared to XRANGE
 ;; Since  : 5.0.0
 (define (redis-xrevrange redis-connection key end start . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-xrevrange "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) end)
+  (unless (redis-value? end)
     (assertion-violation 'redis-xrevrange "'string' required" end))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) start)
+  (unless (redis-value? start)
     (assertion-violation 'redis-xrevrange "'string' required" start))
   (apply %redis-send-command redis-connection "XREVRANGE" key end start opts))
 
@@ -2100,7 +2100,7 @@
 ;; Summary: Return the number of entires in a stream
 ;; Since  : 5.0.0
 (define (redis-xlen redis-connection key)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-xlen "'key' required" key))
   (%redis-send-command redis-connection "XLEN" key))
 
@@ -2124,7 +2124,7 @@
     (assertion-violation 'redis-xreadgroup "A command must be a list" group-command))
   (unless (or (eq? 'group (car group-command)) (equal? "GROUP" (car group-command)))
     (assertion-violation 'redis-xreadgroup "'GROUP' sub command required" group-command))
-  (unless (= (length group-command) 2)
+  (unless (= (length group-command) 3)
     (assertion-violation 'redis-xreadgroup "Invalid 'GROUP' command" group-command))
   (apply %redis-send-command redis-connection "XREADGROUP" group-command opts))
 
@@ -2132,9 +2132,9 @@
 ;; Summary: Marks a pending message as correctly processed, effectively removing it from the pending entries list of the consumer group. Return value of the command is the number of messages successfully acknowledged, that is, the IDs we were actually able to resolve in the PEL.
 ;; Since  : 5.0.0
 (define (redis-xack redis-connection key group . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-xack "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) group)
+  (unless (redis-value? group)
     (assertion-violation 'redis-xack "'string' required" group))
   (apply %redis-send-command redis-connection "XACK" key group opts))
 
@@ -2142,13 +2142,13 @@
 ;; Summary: Changes (or acquires) ownership of a message in a consumer group, as if the message was delivered to the specified consumer.
 ;; Since  : 5.0.0
 (define (redis-xclaim redis-connection key group consumer min-idle-time . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-xclaim "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) group)
+  (unless (redis-value? group)
     (assertion-violation 'redis-xclaim "'string' required" group))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) consumer)
+  (unless (redis-value? consumer)
     (assertion-violation 'redis-xclaim "'string' required" consumer))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) min-idle-time)
+  (unless (redis-value? min-idle-time)
     (assertion-violation 'redis-xclaim "'string' required" min-idle-time))
   (apply %redis-send-command redis-connection "XCLAIM" key group consumer min-idle-time opts))
 
@@ -2156,14 +2156,20 @@
 ;; Summary: Return information and entries from a stream consumer group pending entries list, that are messages fetched but never acknowledged.
 ;; Since  : 5.0.0
 (define (redis-xpending redis-connection key group . opts)
-  (unless (string? key)
+  (unless (redis-value? key)
     (assertion-violation 'redis-xpending "'key' required" key))
-  (unless ((lambda (v) (or (string? v) (bytevector? v) (number? v) (vector? v))) group)
+  (unless (redis-value? group)
     (assertion-violation 'redis-xpending "'string' required" group))
   (apply %redis-send-command redis-connection "XPENDING" key group opts))
 
 
 ;; internal utility
+(define (string/symbol? v) (or (string? v) (symbol? v)))
+(define (redis-value? v)
+  (or (string? v)
+      (bytevector? v)
+      (number? v)
+      (vector? v)))
 (define (convert-arguments args)
   (define (->upper s)
     (if (symbol? s)

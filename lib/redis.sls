@@ -31,9 +31,10 @@
 #!r6rs
 (library (redis)
     (export redis-error?
+	    redis-connection-error?
+	    redis-error-connection
 	    redis-command-error?
 	    redis-error-command
-	    redis-error-connection
 
 	    redis-error-result? redis-error-result-value
 	    ;; connection

@@ -57,6 +57,12 @@
   (content-thunk)
   (print)
   (print ";; internal utility")
+  (print "(define (string/symbol? v) (or (string? v) (symbol? v)))")
+  (print "(define (redis-value? v)")
+  (print "  (or (string? v)")
+  (print "      (bytevector? v)")
+  (print "      (number? v)")
+  (print "      (vector? v)))")
   (print "(define (convert-arguments args)")
   (print "  (define (->upper s)")
   (print "    (if (symbol? s)")
@@ -170,18 +176,12 @@
 
       (define (->scheme-predicate type)
 	(cond ((string=? type "integer") 'integer?)
-	      ((string=? type "enum")
-	       ;; enum can be string or symbol
-	       '(lambda (v) (or (string? v) (symbol? v))))
+	      ;; enum can be string or symbol
+	      ((string=? type "enum") 'string/symbol?)
 	      ;; should key string?
-	      ((string=? type "key") 'string?)
-	      (else
-	       ;; whatever...
-	       '(lambda (v)
-		  (or (string? v)
-		      (bytevector? v)
-		      (number? v)
-		      (vector? v))))))
+	      ;; ((string=? type "key") 'string?)
+	      ;; whatever...
+	      (else 'redis-value?)))
       (define (type-check name type)
 	(format #t "  (unless (~a ~a)~%" (->scheme-predicate type) name)
 	(format #t "    (assertion-violation '~a \"'~a' required\" ~a))~%"
@@ -190,7 +190,7 @@
       (define (command-check command name type)
 	(define arg-name (->command-arg-name command))
 	(define (emit-length-check len)
-	  (format #t "  (unless (= (length ~a) ~a)~%" arg-name  len)
+	  (format #t "  (unless (= (length ~a) ~a)~%" arg-name len)
 	  (format #t "    (assertion-violation '~a \"Invalid '~a' command\" ~a))~%"
 		proc-name command arg-name))
 	(format #t "  (unless (pair? ~a)~%" arg-name)
@@ -201,8 +201,8 @@
 		command arg-name)
 	(format #t "    (assertion-violation '~a \"'~a' sub command required\" ~a))~%"
 		proc-name command arg-name)
-	(if (pair? name)
-	    (emit-length-check (+ (length name) 1))
+	(if (pair? type)
+	    (emit-length-check (+ (length type) 1))
 	    (emit-length-check 2))
 	;; TODO command argument check
 	)

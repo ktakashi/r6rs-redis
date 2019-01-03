@@ -19,20 +19,27 @@ an error.
   Returns `#t` if the given *obj* is an instance of `&redis`.
 
 
+- `(redis-connection-error? obj)`:
+
+  Returns `#t` if the given *obj* is an instance of `&redis-connection`.
+  The `&redis-connection` is a sub condition of `&redis`.
+
+
+- `(redis-error-connection redis-connection-error)`:
+
+  Return the redis connection which caused the ghiven *redis-connection-error*.
+  The connection may or may not be closed.
+
+
 - `(redis-command-error? obj)`:
 
   Returns `#t` if the given *obj* is an instance of `&redis-command`.
+  The `&redis-command` is a sub condition of `&redis-connection`.
 
 
 - `(redis-error-command redis-command-error)`:
 
   Return a command name of the given *redis-comand-error*.
-
-
-- `(redis-error-connection redis-command-error)`:
-
-  Return the redis connection which caused the ghiven *redis-command-error*.
-  The connection may or may not be closed.
 
 
 - `(redis-error-result? obj)`:
@@ -43,6 +50,7 @@ an error.
 - `(redis-error-result-value error-result)`:
 
   Returns the value of given *error-result*.
+
 
 Connection
 ----------

@@ -33,6 +33,9 @@
     (export redis-send-request
 	    redis-recv-response
 
+	    &redis-connection
+	    redis-connection-error?
+	    redis-error-connection
 	    (rename (redis-bidirectional <redis-bidirectional>))
 	    redis-bidirectional? 
 	    redis-bidirectional-input-port
@@ -73,9 +76,21 @@
 		((n #f #f (lambda (me command) #f))
 		 host port #f)))))
 
+(define-condition-type &redis-connection &redis
+  make-redis-connection-error redis-connection-error?
+  (connection redis-error-connection))
+
+(define (redis-connection-error who conn msg)
+  (raise (condition
+	  (make-redis-connection-error conn)
+	  (make-i/o-error)
+	  (make-who-condition who)
+	  (make-message-condition msg))))
+
 (define (redis-connection-open! connection)
   (when (redis-connection-socket connection)
-    (assertion-violation 'redis-connection-open! "Already connected"))
+    (redis-connection-error 'redis-connection-open! connection
+			    "Already connected"))
   (let* ((sock (make-tcp-client-usocket (redis-connection-host connection)
 					(redis-connection-port connection)))
 	 (in (client-usocket-input-port sock))
@@ -86,7 +101,9 @@
     connection))
 (define (redis-connection-close! connection)
   (let ((sock (redis-connection-socket connection)))
-    (unless sock (assertion-violation 'redis-connection-close! "Not connected"))
+    (unless sock
+      (redis-connection-error 'redis-connection-close! connection
+			      "Not connected"))
     (usocket-shutdown! sock *usocket:shutdown-read&write*)
     (usocket-close! sock)
     (redis-connection-socket-set! connection #f)
@@ -97,7 +114,8 @@
 ;; [Low API]: the request must be a bytevector
 (define (redis-send-request connection bv)
   (unless (redis-bidirectional-output-port connection)
-    (assertion-violation 'redis-send-request "Connection is closed" connection))
+    (redis-connection-error 'redis-send-request connection
+			    "Connection is closed"))
   (let ((out (redis-bidirectional-output-port connection)))
     (put-bytevector out bv)
     (flush-output-port out)
@@ -108,8 +126,8 @@
 ;; (connection) -> (values type body)
 (define (redis-recv-response connection)
   (unless (redis-bidirectional-input-port connection)
-    (assertion-violation 'redis-recv-response
-			 "Connection is closed" connection))
+    (redis-connection-error 'redis-recv-response
+			    connection "Connection is closed"))
   (let ((in (redis-bidirectional-input-port connection)))
     (read-response in)))
 
@@ -165,6 +183,7 @@
 (define (read-bulk-string in)
   (define (check-terminate in n bulk)
     (unless (terminate? in)
+      ;; should never happen
       (error 'redis-recv-response "Invalid bulk string size" n))
     (values 'bulk bulk))
   (let-values (((t n) (read-integer in)))

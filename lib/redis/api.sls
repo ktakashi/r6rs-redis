@@ -38,14 +38,13 @@
 	    (redis errors)
 	    (redis resp))
 
-(define-condition-type &redis-command &redis
+(define-condition-type &redis-command &redis-connection
   make-redis-command-error redis-command-error?
-  (command redis-error-command)
-  (connection redis-error-connection))
+  (command redis-error-command))
 
 (define (redis-error command msg connection)
   (raise (condition
-	  (make-redis-command-error command connection)
+	  (make-redis-command-error connection command)
 	  (make-who-condition command)
 	  (make-message-condition msg))))
 

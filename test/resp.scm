@@ -9,9 +9,11 @@
 
 (let ((conn (make-redis-connection "localhost")))
   (test-assert "open" (redis-connection? (redis-connection-open! conn)))
-  (test-error "opened (1)" assertion-violation? (redis-connection-open! conn))
+  (test-error "opened (1)" redis-connection-error?
+	      (redis-connection-open! conn))
   (test-assert "close (1)" (redis-connection? (redis-connection-close! conn)))
-  (test-error "closed (1)" assertion-violation? (redis-connection-close! conn))
+  (test-error "closed (1)" redis-connection-error?
+	      (redis-connection-close! conn))
   
   (test-assert "re-open" (redis-connection? (redis-connection-open! conn)))
   ;; simple inline
